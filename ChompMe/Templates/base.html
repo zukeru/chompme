@@ -1,0 +1,606 @@
+{% load staticfiles %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+    <link href='{% static "css/bootstrap.css" %}' rel="stylesheet"></script>
+    <script type='text/javascript' src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type='text/javascript' src= '{% static "js/bootstrap.js" %}'></script>
+    <script type="text/javascript">
+		$(document).ready(function() {  
+			$('#searchdisplay').hide();
+			
+			
+
+			
+			
+			document.getElementById("searchbox").value = ''
+		            $("#create_token").click(function() {
+		            		var username = document.getElementById("username").value;
+		                    $.ajax({
+		                        url : "/gettoken/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        create_token: 'create_token',
+							        username: username,
+		                            },
+		                            success : function(json) {
+								        document.getElementById('output').innerHTML = ('Token: ' + json['token']);
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+		                            
+		                    });
+		                    return false;  
+		            }); 
+
+		            $("#add_friend").click(function() {
+		                    var token = document.getElementById("friend_token").value;
+		                    $.ajax({
+		                        url : "/addfriend/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        add_friend: token,
+		                            },
+		                            success : function(json) {
+								        document.getElementById('output').innerHTML = (json['message']);
+								        update_friends();
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            	document.getElementById('output').innerHTML = "Request Failed.";
+		                            }
+		                            
+		                    });
+		                    return false;  
+		            }); 
+
+		            $("#makepost").click(function() {
+		            		
+		                    var post_title = document.getElementById("post_title").value;
+		                    var post_text = document.getElementById("post_text").value;
+		                    var username = document.getElementById("username").value;
+
+		                    $.ajax({
+		                        url : "/makepost/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        username: username,
+							        post_title: post_title,
+							        post_text: post_text,
+		                            },
+		                            success : function(json) {
+								        updatePostSection(json['user_posts']);
+								        $("#post_modal").modal('hide');
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+		                            
+		                    });
+		                    return false;  
+		            }); 
+		            
+		            
+		            $("#friend_request").click(function() {
+		            		
+		                    var username = document.getElementById("friend_request").value;
+		                    $.ajax({
+		                        url : "/friendrequest/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        username: username,
+		                            },
+		                            success : function(json) {
+		                            document.getElementById("friend_requests").innerHTML=json['message'];
+								    $("#friend_request").hide();
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+		                            
+		                    });
+		                    return false;  
+		            }); 
+
+		            $("#uppropic").click(function() {
+		                    var files = $('#profile_pic').val();
+		                    console.log(files);   
+		                    var username = '{{user.username}}'; 
+		                    						
+		                    $.ajax({
+		                            url : "/profilepic/",
+						            csrfmiddlewaretoken: '{{ csrf_token }}',
+						            type: 'POST',
+						            url : '/profilepic/',
+						            enctype: "multipart/form-data",
+						            data  : {
+							            	csrfmiddlewaretoken: '{{ csrf_token }}',
+							                file: $('#profile_pic').val(),
+							                username: username,
+						            },
+											success : function(data) {
+				                            },
+				                            error : function(xhr,errmsg,err) {
+				                                console.log(xhr.status + ": " + xhr.responseText);
+				                            }
+		                                   
+		                    });
+		                    return false;  
+		            }); 
+		            
+		            function refresh(){
+		            	window.location = "";
+		            }
+		            
+		            $("#saveprofile").click(function() {
+		                    var title = $('#title').val(); 
+		                    var first_name = $('#first_name').val();
+		                    var last_name = $('#last_name').val();
+		                    var dob = $('#dob').val();
+		                    var about = $('#about').val();
+		                    var occupation = $('#occupation').val();
+		                    						
+		                    $.ajax({
+						            csrfmiddlewaretoken: '{{ csrf_token }}',
+						            type: 'POST',
+						            url : '/editprofile/',
+						            data  : {
+							            	csrfmiddlewaretoken: '{{ csrf_token }}',
+							                title: title,
+							                first_name: first_name,
+							                last_name: last_name,
+							                dob: dob,
+							                about: about,
+							                occupation:occupation,
+						            },
+		                            success : function(json) {
+		                            	
+		                            	refresh();
+		                            	 
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+		                                   
+		                    });
+		                    $('#edit_modal').hide();
+		                    return false;
+		                       
+		            });		            
+					
+		            
+		            		            		            
+		        });
+		          
+	</script>
+	
+<script type="text/javascript">	
+
+	function accept(id) {
+	console.log(id);
+  
+			try{
+				   $.ajax({
+		                  url : "/ar/", 
+		                  type : "POST",
+		                  dataType: "json", 
+		                  data : {
+									 csrfmiddlewaretoken: '{{ csrf_token }}',
+									 id:id,
+							      },
+		                  success : function(json) {	
+										$('#request_modal').hide();    
+		                            },
+		                  error : function(xhr,errmsg,err) {
+		                  console.log(id);
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+			}
+			catch(err){
+				console.log(err);
+			}
+
+ }
+		function updatePostSection(user_posts) {
+			  var post_section = $('#post_section');
+			  post_section.html(''); // Remove all html contents inside
+			
+			  for(var i = 0; i < user_posts.length; i++) {
+			  	user_posts[i][4]
+			    var div = $('<div>');
+			    div.attr('id', user_posts[i][3]);
+			    div.html("<div style='background:#FFF;color:#352f29;width:100%;margin-top:10px;' "+ "id=" + user_posts[i][1] + ">" + "<div style='background:#217fbc;width:100%;color:#FFF;padding:7px;'>" + "<img src='{% static "images/icons/chomp.png" %}'>" + "<p style='float:right;margin-top:5px;'><i>" + user_posts[i][1] + "</i> {% if is_user_profile %} <button class='btn btn-danger' style='margin-left:10px;' id=" + user_posts[i][3] + " onclick='delete_post(this.id);'></button>{%endif%}</p></div>" + "<div style='background:#FFF;width:100%;color:#352f29;padding:20px;'><font size='4'><i><center>" + user_posts[i][2] + " ~ <a href='/" + user_posts[i][0] + "'>" + user_posts[i][0]  + "</a></font></i></center><br><br><p style='float:right;'><b><i><br>" + user_posts[i][4] + "</i></b></p><br>" + user_posts[i][5] + "<br><button type='button' class='btn btn-primary' data-toggle='modal' data-target='.bs-example-modal-sm5' id='" + user_posts[i][3] + "' onclick='update_modal_id(this.id);'>Comment</button> <p style='float:right;'><button id='" + user_posts[i][3] + "' onclick='addLike(this.id);'><span class='glyphicon glyphicon-heart' aria-hidden='true' style='color:#217fbc;'></span> + " + user_posts[i][6] + "</button> <button id='" + user_posts[i][3] + "' onclick='removeLike(this.id);'><span class='glyphicon glyphicon-remove' aria-hidden='true' style='color:#e64d47;'></span> + " + user_posts[i][7] + "</button> </p></div></div>");
+			    post_section.append(div);
+			  }
+			}
+		
+		function update_modal_id(id){
+			var comment_section = $('#commentidholder');
+			comment_section.html(''); // Remove all html contents inside
+		    var html = "<button id='"+ id + "' type='button' class='btn btn-primary' data-dismiss='modal' onclick='comment_post(this.id);'>Save</button>"
+		    comment_section.append(html);
+		}
+			
+		function comment_post(id) {
+			  var comment = document.getElementById("comment").value;
+			  console.log(id);
+					   $.ajax({
+		                        url : "/commentpost/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+							        id:id,
+							        comment:comment,
+		                            },
+		                            success : function(json) {
+										console.log(json['message']); 
+										     
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+			  }
+				
+
+			
+			function updateFriends(friends) {
+			  var friend_section = $('#friend_data');
+			  friend_section.html(''); // Remove all html contents inside
+			  var row_count = 0
+			  for(var i = 0; i < friends.length; i++) {
+			    if (row_count < 5){
+				    var div = $('<div>');
+				    div.attr('id', friends[i][1]);
+				    div.html("<div class='col-xs-6 col-lg-4' style='width:100px;height:100px;margin:5px;padding:0px;'><a href='/" + friends[i][1] + "'>" + "<img class = 'circular' style='width:100%;height:100%;' src={%static 'images/' %}" + friends[i][0] + ">" + '<br><center>' + friends[i][1] + "</centeR></div>");
+				    friend_section.append(div);
+				    row_count += 1
+			    }else{
+			    	if (row_count == 5){
+			    	var div = $('<div>');
+				    div.attr('id', friends[i][1]);
+				    div.html("<br><div class='col-xs-6 col-lg-4' style='width:100px;height:100px;margin:5px;padding:0px;'><a href='/" + friends[i][1] + "'>" + "<img class = 'circular' style='width:100%;height:100%;' src={%static 'images/' %}" + friends[i][0] + ">" + '<br><center>' + friends[i][1] + "</centeR></div>");
+				    friend_section.append(div);
+				    row_count += 1
+				   }else{
+			    	var div = $('<div>');
+				    div.attr('id', friends[i][1]);
+				    div.html("<div class='col-xs-6 col-lg-4' style='width:100px;height:100px;margin:5px;padding:0px;'><a href='/" + friends[i][1] + "'>" + "<img class = 'circular' style='width:100%;height:100%;' src={%static 'images/' %}" + friends[i][0] + ">" + '<br><center>' + friends[i][1] + "</centeR></div>");
+				    friend_section.append(div);
+				    row_count += 1				   
+				   }
+			    }
+			  } 
+			}
+			
+		function updateNotes(user_notes) {
+			  var notes_section = $('#notes');
+			  notes_section.html(''); // Remove all html contents inside
+			
+			  for(var i = 0; i < user_notes.length; i++) {
+			    var div = $('<div>');
+			    div.attr('id', user_notes[i][4]);
+			    div.html("<div style='background:#FFF;color:#352f29;width:100%;margin-top:10px;' "+ "id=" + user_notes[i][4] + ">" + "<div style='background:#217fbc;width:100%;color:#FFF;padding:7px;'>" + "<img src='{% static "images/icons/chomp.png" %}'>" + "<p style='float:right;margin-top:5px;'> " + user_notes[i][1] + " - Chomped</p></div>" + "<div style='background:#FFF;width:100%;color:#352f29;padding:20px;'>" + "<center><img  class = 'circular' style='width:200px;height:200px;' src={%static 'images/' %}" + user_notes[i][0] + "> </center><br> Title:" + user_notes[i][2] + "<br><br>" + user_notes[i][3] + "</div></div>");
+			    notes_section.append(div);
+			  }
+			}
+
+
+function addLike(id){
+
+					   $.ajax({
+		                        url : "/addlike/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+							        id:id,
+		                            },
+		                            success : function(json) {
+										console.log(json['message']); 
+										     
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+	}
+
+function removeLike(id){
+
+					   $.ajax({
+		                        url : "/removelike/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+							        id:id,
+		                            },
+		                            success : function(json) {
+										console.log(json['message']); 
+										     
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+	}
+			
+			
+	function delete_post(id){
+				var r = window.confirm("Are you sure you want to delete your post?");
+				if (r == true) {
+					   $.ajax({
+		                        url : "/deletepost/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+							        id:id,
+		                            },
+		                            success : function(json) {
+										console.log(json['message']); 
+										     
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+				} else {
+   						
+				} 
+
+	}
+
+
+	
+		function search_friends(string){
+					   
+					   $.ajax({
+		                        url : "/searchfriends/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+							        searchstring:string,
+		                            },
+		                            success : function(json) {
+		                            		var search_results = $('#searchdisplay');
+			  								search_results.html('');
+			  								var div = $('<div class="list-group" style="padding:0px;">');
+											div.attr('id', 'search_output');
+											for(var i = 0; i < json['users'].length; i++) {
+											if (i == 0){
+											var html_add = '<a href="' + json['users'][i][1] + '"class="list-group-item" style="padding:0px;">' + "<img  class = 'circular' style='width:50px;height:50px;' src={%static 'images/' %}" + json['users'][i][4] + "> Username:" +json['users'][i][1]+ " Name:" + json['users'][i][2] + ' ' + json['users'][i][3] + '</a>';
+											}else{
+												html_add = html_add + '<a href="' + json['users'][i][1] + '"class="list-group-item" style="padding:0px;">' + "<img  class = 'circular' style='width:50px;height:50px;' src={%static 'images/' %}" + json['users'][i][4] + "> Username:" +json['users'][i][1]+ " Name:" + json['users'][i][2] + ' ' + json['users'][i][3] + '</a>';
+											}
+											
+							
+										  }
+										  div.html(html_add);
+										  search_results.append(div);
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                            	$("#searchdisplay").fadeOut();
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+							 
+							 
+							 
+							
+		var position = $("#searchbox").position();
+		left = position.left;
+		top = position.top;
+		$("#searchdisplay").offset({top: top, left: left});
+		$("#searchdisplay").fadeIn();
+	}
+	
+	
+				function display_request(){
+
+						   $.ajax({
+		                        url : "/getrequest/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+		                            },
+		                            success : function(json) {
+		                        
+									 
+								    var rec_requests = $('#requests');
+			  						rec_requests.html('');
+			  						var div = $('<div style="padding:0px;">');
+									div.attr('id', 'friend_requests');
+									for(var i = 0; i < json['requests'].length; i++) {
+											if (i == 0){
+												var html_add = '<li>'+"<img  class = 'circular' style='width:50px;height:50px;margin-right:5px;' src={%static 'images/' %}" + json['requests'][i][2] + "> Username:" +json['requests'][i][1] + '<button class="btn btn-primary" style="margin-left:5px;" id="'+ json['requests'][i][0] + '" onclick="accept(this.id);"> Accept</button></li>';
+											}else{
+												var html_add = '<li>' + "<img  class = 'circular' style='width:50px;height:50px;' src={%static 'images/' %}" + json['requests'][i][2] + "> Username:" +json['requests'][i][1] + '<button class="btn btn-primary" id="'+ json['requests'][i][0] + '" onclick="accept(this.id);"> Accept</button> </li>';
+												
+											}
+									}
+									rec_requests.append(html_add);	     
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+							 
+							 }
+	
+
+	
+	function update(){	
+		
+						try{	
+							var searchval = document.getElementById("searchbox").value;
+							if (searchval == ''){
+								$('#searchdisplay').hide();							
+							} else{
+								search_friends(searchval);
+								searchval = ''
+							}
+						}
+						catch(err){
+							$('#searchdisplay').hide();
+						}	
+						
+						   $.ajax({
+		                        url : "/getnot/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+		                            },
+		                            success : function(json) {
+										updateNotes(json['notifications']); 
+										     
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+
+						   $.ajax({
+		                        url : "/friendcount/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+							        
+		                            },
+		                            success : function(json) {
+										document.getElementById("friend_count").innerHTML=json['count'];      
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+
+
+						   $.ajax({
+		                        url : "/requestcount/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+							        
+		                            },
+		                            success : function(json) {
+										document.getElementById("request_count").innerHTML= json['count'];      
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+			
+							 });
+
+			                $.ajax({
+		                        url : "/getposts/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+		                            },
+		                            success : function(json) {
+										updatePostSection(json['user_posts']);
+								             
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+		                            
+		                    });
+               
+			                $.ajax({
+		                        url : "/getfriends/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+							        profile_name: document.URL,
+		                            },
+		                            success : function(json) {							  
+										updateFriends(json['friend_data']);						         
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+		                            
+		                    });
+		                  
+		                  setTimeout(function(){ update(); }, 2000);
+		                 }
+	setTimeout(function(){ update(); }, 100);
+$('#myModal').on('shown.bs.modal', function () {
+    $('#myInput').focus()
+})
+
+
+            
+
+function hide_and_ajax(){
+	$('#pic_modal').modal('hide');
+				           $.ajax({
+		                        url : "/updateprofilepic/", 
+		                        type : "POST",
+		                        dataType: "json", 
+		                        data : {
+							        csrfmiddlewaretoken: '{{ csrf_token }}',
+		                            },
+		                            success : function(json) {
+		                            	var profile_string = '<img class = "circular" width="140" height="140" align="left" style="padding-right:10px;" src="' + "{%static 'images/'%}" + json['profile_pic'] + '">';
+		                            	document.getElementById('update_profile_pic').innerHTML = '' ;
+								        document.getElementById('update_profile_pic').innerHTML = profile_string ;
+								             
+		                            },
+		                            error : function(xhr,errmsg,err) {
+		                                console.log(xhr.status + ": " + xhr.responseText);
+		                            }
+		                            
+		                    });
+}
+
+</script>	
+
+        <title>ChompMe
+        {% block title %}{% endblock %}</title>
+    </head>
+    <body background='{% static "images/bg.png" %}'>
+        {% block content %}{% endblock %}
+
+    </body>
+</html>

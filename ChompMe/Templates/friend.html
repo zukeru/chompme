@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}
+{% for user in user_data %}
+	{{user.username}}
+{%endfor%}
+{% endblock %}
+{% block content %}
+
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container" style='width:100%;'>
+        <div class="navbar-header" >
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <img src='{% static "images/icons/sitelogo.png" %}'>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse" style='width:100%;'>
+
+ 
+          <form class="navbar-form" style='float:right;margin-top:15px;width:80%;'>
+            <div class="form-group" style='float:right;'>
+            <p id="navi" style='float:right;'>   
+
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm3" onclick='display_request();'>Friend Requests <span class='badge' id='request_count' style='background:#e64d47;color:#fff;'></span></button>
+            <a href="/home"><button type="button" class="btn btn-primary" >Home</button></a>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Upload Profile Pic</button>
+            
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm2">Make Post</button>
+            <a href="/logout/"><button type="button" class="btn btn-primary">Logout</button></a>
+            <span class="glyphicon glyphicon-search" aria-hidden="true" style='color:#fff'></span><input type="text" id='searchbox' placeholder="Username or FirstName LastName" class="form-control" style="width:350px;"></p>
+   		    
+   		    <p id="searchdisplay"></div>
+	
+              
+            </div>
+          </form>
+          
+        </div><!--/.navbar-collapse -->
+      </div>
+    </nav>
+
+
+</center>      
+<div class="container" style='margin-top:70px;width:98%; padding:5px;margin-left:auto;margin=right:auto;'>
+<div class="row" style='padding:0px;'> 
+<div id='user_about' class="col-md-4" style="margin-top:10px;">
+              <div id='user_about_heading_left' style='background:#217fbc;padding:5px;'><img src='{% static "images/icons/coffeeicon.png" %}'>  
+              <font style="font-family: courier" color='#9bba9c' size='5'><b>{% for user in user_data %}{{user.user_score}}{%endfor%}</b></font> 
+              <p style='float:right; color:#fff;'> Whos this chomper? 
+              <br>Mood: <font color='9bba9c'>Good</font>
+              
+              </p>
+              <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm4">Edit Profile</button>
+              </div>
+              
+              <div id='user_about_text' style='background:#FFF;padding:15px;'>
+              <p id='update_profile_pic'><a data-toggle="modal" data-target=".bs-example-modal-sm6" style='text-decoration: none;'><img width='140' height='140' class = "circular" align='left' style='padding-right:10px;' src="{%static 'images/' %}{{profile_pic}}"></a></p>
+               <p id = 'user_about_text_indent'>
+			    {% for user in user_data %}
+			        <font color='352f29'>Title:</font> {{user.title}}<br>
+			    	<font color='352f29'>Username:</font> {{user.username}}<br>
+			    	<font color='352f29'>Birthday:</font>  {{user.dob}}<br>
+			    	<font color='352f29'>First Name:</font>  {{user.first_name}}<br>
+			    	<font color='352f29'>Last Name:</font>  {{user.last_name}}<br>
+			    	<font color='352f29'>About:</font>  {{user.about}}<br>
+			    	<font color='352f29'>Occupation:</font>  {{user.occupation}}<br>
+			    {%endfor%}
+			    </p>
+			    
+				<div id='output_message' style='color:#352f29;'> 		
+							 		<p id='output'>
+							 		
+							 		</p>
+				</div> 
+</div>
+       
+
+<div id = 'friends' style='margin-top:10px;'>
+<div style="width:100%;background:#217fbc;color:#fff;padding:7px;">
+ <img src='{% static "images/icons/chomp.png" %}'><p style='float:right;margin-top:5px;' >Friends: <span class='badge' id='friend_count' style='background:#9bba9c;color:#fff;'></span></p>
+</div>
+<div style="width:100%;background:#fff;color:#352f29;padding:15px;height:300px;" id='friend_data'>
+</div>
+</div>
+</div>
+
+
+<div id ='post_section' class="col-md-6" style='padding-left:7px;padding-right:7px;'>
+</div>
+
+<div class="modal fade bs-example-modal-sm2" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id='post_modal'>
+  <div class="modal-dialog modal-sm2">
+    <div class="modal-content">
+		{% if is_user_profile %}
+		
+		<div id='make_post'>
+		 		<form method='POST'>
+				{% csrf_token %}
+				
+				<div style='width:100%;background:#217fbc;color:#FFF;padding:7px;'>
+				<img src='{% static "images/icons/chomp.png" %}' >
+				
+				<p style='float:right;margin-top:5px;color:#352f29;'> <input type ='text' id='post_title' placeholder="Chomp Title:"></p>
+				</div>
+				
+				<div style='width:100%;height:300px;background:#FFF;color:#352f29;padding:15px;'>
+				<textarea id='post_text' style='width:100%;height:100%;resize: none;' placeholder="Chomp Title:"></textarea><br>
+				</div>
+				
+				<div style='width:100%;background:#4a525f;color:#FFF;padding:7px;height:50px;'>
+				<p style='float:right;'><button id='makepost' type="button" class="btn btn-primary" data-dismiss="modal">Post</button></p>
+				{% for user in user_data %}
+				<input type='hidden' id='username' value='{{user.username}}' >
+				{%endfor%}
+				</div>
+				
+				</form>
+		</div>		
+		{%endif%} 	
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade bs-example-modal-sm3" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id='request_modal'>
+  <div class="modal-dialog modal-sm3">
+    <div class="modal-content">
+
+		<div id='requests'>
+
+		</div>		
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade bs-example-modal-sm5" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id='comment_modal'>
+  <div class="modal-dialog modal-sm5">
+    <div class="modal-content">
+
+		<div id='edit'>
+			<form method='POST' action='home/'>
+				{% csrf_token %}
+				
+				<div style='width:100%;background:#217fbc;color:#FFF;padding:7px;'>
+				<img src='{% static "images/icons/chomp.png" %}' > Comment:
+				</div>
+				
+				<div style='width:100%;height:30%;background:#FFF;color:#352f29;padding:15px;'>
+
+			      <div class="form-group">
+			        <label for="">Comment</label>			    	
+			    	<textarea class="form-control" id='comment' style='width:100%;height:150px;resize:vertical;' placeholder="Comment:">{{users.about}}</textarea><br>
+			      </div>
+
+				</div>
+				
+				<div style='width:100%;background:#4a525f;color:#FFF;padding:7px;height:50px;'>
+				<p style='float:right;' id='commentidholder'></p>
+				</div>
+				<input type='hidden' id='username' value='{{user.username}}' >
+			</form>
+
+		</div>		
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade bs-example-modal-sm4" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id='edit_modal'>
+  <div class="modal-dialog modal-sm4">
+    <div class="modal-content">
+
+		<div id='edit'>
+			<form method='POST' action='home/'>
+				{% csrf_token %}
+				
+				<div style='width:100%;background:#217fbc;color:#FFF;padding:7px;'>
+				<img src='{% static "images/icons/chomp.png" %}' > Edit Profile Information:
+				</div>
+				
+				<div style='width:100%;height:50%;background:#FFF;color:#352f29;padding:15px;'>
+				{% for users in user_data %}
+				  <div class="form-group">
+    				<label for="">Title</label>
+			    	<input type='text' class="form-control" id='title' value='{{users.title}}' placeholder="Title" style='width:100%;'>
+			      </div>
+			      
+			      <div class="form-group">
+			        <label for="">Username</label>	
+			        <input type='text' class="form-control" id='usernames' value='{{users.username}}' placeholder="Username" style='width:100%;' disabled>	    	
+			    	
+			      </div>
+			      
+			      <div class="form-group">
+			        <label for="">DOB YYYY-MM-DD</label>			      
+					<input type='text' class="form-control" id='dob' value='{{users.dob}}' placeholder="YYYY-MM-DD" style='width:100%;'>
+			      </div>
+			      
+			      <div class="form-group">
+			        <label for="">First Name</label>			    	
+			    	<input type='text' class="form-control" id='first_name' value='{{users.first_name}}' placeholder="First Name:" style='width:100%;'>
+                  </div>
+                  
+			      <div class="form-group">
+			        <label for="">Last Name</label>					
+					<input type='text' class="form-control" id='last_name' value='{{users.last_name}}' placeholder="Last Name:" style='width:100%;'>
+			      </div>
+			      
+			      <div class="form-group">
+			        <label for="">About Me</label>			    	
+			    	<textarea class="form-control" id='about' style='width:100%;height:150px;resize:vertical;' placeholder="About:">{{users.about}}</textarea><br>
+			      </div>
+			      
+			      <div class="form-group">
+			        <label for="">Occupation</label>				    	
+			    	<input type='text' class="form-control" id='occupation' value='{{users.occupation}}' placeholder="Occupation" style='width:100%;'>
+			      </div>
+			    
+			    
+			    {%endfor%}
+				
+				
+				</div>
+				
+				<div style='width:100%;background:#4a525f;color:#FFF;padding:7px;height:50px;'>
+				<p style='float:right;'><button id='saveprofile' type="button" class="btn btn-primary" data-dismiss="modal">Save</button></p>
+				</div>
+				<input type='hidden' id='username' value='{{user.username}}' >
+			</form>
+
+		</div>		
+    </div>
+  </div>
+</div>
+
+
+ 
+<div class="modal fade bs-example-modal-sm6" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id='pic_modal' style='background:transparent;'>
+  <div class="modal-dialog modal-sm6" style='background:transparent;'>
+    <div class="modal-content" style='background:transparent;'>
+		<p id='update_profile_pic'><img align='left' width='500' height='500' style='padding-right:10px;' src="{%static 'images/' %}{{profile_pic}}"  class = "circular2"></p>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id='pic_modal'>
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+{% if is_user_profile %}        
+
+<div id='profile_pics'> 		
+ <iframe src="/profilepic/" id='inneriframe' scrolling="no" width='600' height='200' frameBorder="0"></iframe>
+</div>
+    </div>
+  </div>
+</div>
+{%endif%}
+ 
+{% endblock %}

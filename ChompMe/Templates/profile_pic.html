@@ -1,0 +1,70 @@
+{% load staticfiles %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+    <link href='{% static "css/bootstrap.css" %}' rel="stylesheet"></script>
+    <script type='text/javascript' src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type='text/javascript' src= '{% static "js/bootstrap.js" %}'></script>
+        <script type="text/javascript">
+ 
+		function getFile(){
+              document.getElementById("upfile").click();
+        }
+function success_upload(){
+	parent.hide_and_ajax();
+}
+ </script>
+ </head>
+ 
+<body>
+<div style='height:100%;'>
+{% if file_message %}
+<form method='POST' enctype='multipart/form-data'>  
+{% csrf_token %}
+<script>
+    success_upload();
+</script>
+<div style="width:100%;background:#217fbc;color:#fff;padding:7px;">
+<img src='{% static "images/icons/chomp.png" %}'><p style='float:right;margin-top:5px;'> Upload Pic</p>
+</div>
+
+<div style="width:300px;height:102px;background:#fff;color:#352f29;padding:15px;" id='word_wrap'>
+<p id='complete_message'>{{file_message}}</p>
+   <div id="yourBtn" class="btn btn-primary" onclick="getFile()">Browse</div>
+    <!-- this is your file input tag, so i hide it!-->
+    <div style='height: 0px;width:0px; overflow:hidden;'><input id="upfile" type="file" name='file' accept="image/gif, image/jpeg, image/png"></div>
+
+</div>
+
+<div style='width:100%;height:150px;background:#4a525f;color:#FFF;padding:7px;height:50px;'>
+<p style='float:right;'><input id ='pic_button' type="submit" class="btn btn-primary" value='Upload' onclick=""></p>
+</div>	
+</form>
+
+{%else%}
+
+
+<form method='POST' enctype='multipart/form-data'>  
+{% csrf_token %}
+
+<div style="width:100%;background:#217fbc;color:#fff;padding:7px;">
+<img src='{% static "images/icons/chomp.png" %}'><p style='float:right;margin-top:5px;'> Upload Pic</p>
+</div>
+
+<div style="width:300px;height:102px;background:#fff;color:#352f29;padding:15px;white-space:normal;word-wrap:break-word;">
+<p id='complete_message'>{{file_message}}</p>
+    <div id="yourBtn" class="btn btn-primary" onclick="getFile()">Browse</div>
+    <!-- this is your file input tag, so i hide it!-->
+    <div style='height: 0px;width:0px; overflow:hidden;'><input id="upfile" type="file" name='file' accept="image/gif, image/jpeg, image/png"></div>
+
+</div>
+
+<div style='width:100%;background:#4a525f;color:#FFF;padding:7px;height:50px;'>
+<p style='float:right;'><input id ='pic_button' type="submit" class="btn btn-primary" value='Upload' onclick="success_upload();"></p>
+</div>	
+
+</form>
+{%endif%}
+</div>
+
+</body>
